@@ -1,3 +1,4 @@
+// 引入必要的模块
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
@@ -9,10 +10,12 @@ const { v4: uuidv4 } = require('uuid');
 const app = express();
 const port = 3123;
 
+// 定义文件路径
 const usersFilePath = path.join(__dirname, 'user', 'users.txt');
 const cardsDirectory = path.join(__dirname, 'cards');
 const learningRecordsPath = path.join(__dirname, 'learningRecords.json');
 
+// 设置视图引擎和中间件
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.use(bodyParser.json());
@@ -27,6 +30,7 @@ app.use(session({
 
 const iconv = require('iconv-lite');
 
+// 配置文件上传存储
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, 'cards/');
@@ -39,9 +43,10 @@ const storage = multer.diskStorage({
     }
 });
 
-
+// 设置 multer 上传配置
 const upload = multer({ storage: storage });
 
+// 加载用户数据
 function loadUsers() {
     if (!fs.existsSync(usersFilePath)) return [];
     const data = fs.readFileSync(usersFilePath, 'utf-8').trim();
@@ -60,6 +65,7 @@ function loadUsers() {
     }).filter(user => user !== null);
 }
 
+// 生成唯一的邀请码
 function generateUniqueInviteCode(users) {
     let inviteCode;
     do {
@@ -68,10 +74,12 @@ function generateUniqueInviteCode(users) {
     return inviteCode;
 }
 
+// 获取学习卡列表
 function getCardsList(username) {
     const publicCards = [];
     const userCards = [];
 
+    // 获取公共卡片
     if (fs.existsSync(cardsDirectory)) {
         const files = fs.readdirSync(cardsDirectory);
         files.forEach(file => {
@@ -84,6 +92,7 @@ function getCardsList(username) {
         });
     }
 
+    // 获取用户私有卡片
     const userDirectory = path.join(cardsDirectory, username);
     if (fs.existsSync(userDirectory)) {
         const userFiles = fs.readdirSync(userDirectory);
@@ -100,18 +109,21 @@ function getCardsList(username) {
     return { publicCards, userCards };
 }
 
+// 获取学习卡内容
 function getCardContent(cardName, username) {
     if (!cardName || !username) {
         console.error('Invalid arguments: cardName or username is undefined');
         return null;
     }
 
+    // 首先尝试从用户私有目录获取卡片内容
     let filePath = path.join(cardsDirectory, username, `${cardName}.txt`);
     if (fs.existsSync(filePath)) {
         const fileContent = fs.readFileSync(filePath, 'utf-8');
         return parseCardContent(fileContent);
     }
 
+    // 如果不存在，再尝试从公共目录获取
     filePath = path.join(cardsDirectory, `${cardName}.txt`);
     if (fs.existsSync(filePath)) {
         const fileContent = fs.readFileSync(filePath, 'utf-8');
@@ -121,6 +133,7 @@ function getCardContent(cardName, username) {
     return null;
 }
 
+// 解析学习卡内容
 function parseCardContent(fileContent) {
     return fileContent.split('\n').map(line => {
         const parts = line.split(',');
@@ -130,6 +143,7 @@ function parseCardContent(fileContent) {
     }).filter(item => item !== undefined);
 }
 
+// 洗牌函数，用于随机排列数组元素
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -138,12 +152,14 @@ function shuffleArray(array) {
     return array;
 }
 
+// 获取随机选项，用于生成选择题
 function getRandomOptions(correctAnswer, allAnswers, optionType = 'definition') {
     const shuffled = allAnswers.filter(a => a[optionType] !== correctAnswer[optionType])
                                .sort(() => 0.5 - Math.random());
     return shuffled.slice(0, 3).map(item => item[optionType]);
 }
 
+// 检查用户是否已登录
 function checkAuthentication(req, res, next) {
     if (req.session.loggedIn && req.session.username) {
         next();
@@ -152,6 +168,7 @@ function checkAuthentication(req, res, next) {
     }
 }
 
+// 加载学习记录
 function loadLearningRecords() {
     if (!fs.existsSync(learningRecordsPath)) {
         fs.writeFileSync(learningRecordsPath, '[]');
@@ -161,10 +178,12 @@ function loadLearningRecords() {
     return JSON.parse(data);
 }
 
+// 保存学习记录
 function saveLearningRecords(records) {
     fs.writeFileSync(learningRecordsPath, JSON.stringify(records, null, 2));
 }
 
+// 更新学习记录
 function updateLearningRecords(username, wordsLearned) {
     let learningRecords = loadLearningRecords();
     const userRecord = learningRecords.find(record => record.username === username);
@@ -176,6 +195,7 @@ function updateLearningRecords(username, wordsLearned) {
     saveLearningRecords(learningRecords);
 }
 
+// 注册接口
 app.post('/api/register', (req, res) => {
     const { username, password, inviteCode } = req.body;
     const users = loadUsers();
@@ -218,6 +238,7 @@ app.post('/api/register', (req, res) => {
     res.json({ message: '注册成功！' });
 });
 
+// 登录接口
 app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
     const users = loadUsers();
@@ -231,6 +252,7 @@ app.post('/api/login', (req, res) => {
     }
 });
 
+// 文件上传接口
 app.post('/upload', upload.single('file'), (req, res) => {
     console.log('Received upload request:', req.file, req.body);
 
@@ -276,6 +298,7 @@ app.post('/upload', upload.single('file'), (req, res) => {
     res.json({ success: true, message: '上传成功！' });
 });
 
+// 主页面路由
 app.get('/', checkAuthentication, (req, res) => {
     const { publicCards, userCards } = getCardsList(req.session.username);
     const users = loadUsers();
@@ -293,6 +316,7 @@ app.get('/', checkAuthentication, (req, res) => {
     });
 });
 
+// 登录页面路由
 app.get('/login', (req, res) => {
     if (req.session.loggedIn) {
         return res.redirect('/');
@@ -300,6 +324,7 @@ app.get('/login', (req, res) => {
     res.render('login');
 });
 
+// 获取学习卡的内容页面
 app.get('/card/:name', checkAuthentication, (req, res) => {
     const cardName = decodeURIComponent(req.params.name);
     const cardContent = getCardContent(cardName, req.session.username);
@@ -314,6 +339,7 @@ app.get('/card/:name', checkAuthentication, (req, res) => {
     }
 });
 
+// 获取学习卡的API接口
 app.get('/api/card/:name', checkAuthentication, (req, res) => {
     const cardName = req.params.name;
     let cardContent = getCardContent(cardName, req.session.username);
@@ -325,6 +351,7 @@ app.get('/api/card/:name', checkAuthentication, (req, res) => {
     }
 });
 
+// 获取学习卡的特定问题接口
 app.get('/api/card/:name/question/:index', checkAuthentication, (req, res) => {
     const cardName = req.params.name;
     const index = parseInt(req.params.index, 10);
@@ -375,7 +402,7 @@ app.get('/api/card/:name/question/:index', checkAuthentication, (req, res) => {
 
     fs.writeFileSync(learningRecordsPath, JSON.stringify(learningRecords, null, 2));
 
-res.json({
+    res.json({
         word: question.word,
         correctAnswer: correctAnswer,
         options: definitionOptions,
@@ -385,6 +412,7 @@ res.json({
     });
 });
 
+// 注销接口
 app.get('/logout', (req, res) => {
     req.session.destroy((err) => {
         if (err) {
@@ -394,6 +422,7 @@ app.get('/logout', (req, res) => {
     });
 });
 
+// 获取排行榜接口
 app.get('/api/leaderboard', (req, res) => {
     const today = new Date().toISOString().split('T')[0];
     const learningRecordsPath = path.join(__dirname, 'learningRecords.json');
@@ -418,6 +447,7 @@ app.get('/api/leaderboard', (req, res) => {
     res.json(leaderboard);
 });
 
+// 检查管理员权限
 function checkAdmin(req, res, next) {
     if (req.session.loggedIn && req.session.username === 'admin') {
         next();
@@ -426,6 +456,7 @@ function checkAdmin(req, res, next) {
     }
 }
 
+// 管理员生成邀请码接口
 app.post('/admin/generate-invite-code', checkAdmin, (req, res) => {
     const users = loadUsers();
     const inviteCode = generateUniqueInviteCode(users);
@@ -438,11 +469,13 @@ app.post('/admin/generate-invite-code', checkAdmin, (req, res) => {
     res.json({ message: '邀请码生成成功', inviteCode });
 });
 
+// 管理员查看学习记录接口
 app.get('/admin/view-learning-records', checkAdmin, (req, res) => {
     const learningRecords = loadLearningRecords();
     res.json(learningRecords);
 });
 
+// 管理员冻结用户接口
 app.post('/admin/freeze-user', checkAdmin, (req, res) => {
     const { username } = req.body;
     const users = loadUsers();
@@ -457,6 +490,7 @@ app.post('/admin/freeze-user', checkAdmin, (req, res) => {
     }
 });
 
+// 管理员删除用户接口
 app.post('/admin/delete-user', checkAdmin, (req, res) => {
     const { username } = req.body;
     let users = loadUsers();
@@ -471,6 +505,7 @@ app.post('/admin/delete-user', checkAdmin, (req, res) => {
     }
 });
 
+// 管理员删除学习卡接口
 app.post('/admin/delete-card', checkAdmin, (req, res) => {
     const { cardName } = req.body;
     const publicCardPath = path.join(cardsDirectory, `${cardName}.txt`);
@@ -494,6 +529,7 @@ app.post('/admin/delete-card', checkAdmin, (req, res) => {
     });
 });
 
+// 管理员上传全局学习卡接口
 app.post('/admin/upload-global-card', checkAdmin, upload.single('file'), (req, res) => {
     if (!req.file) {
         return res.status(400).send('请上传 .txt 文件');
@@ -513,6 +549,7 @@ app.post('/admin/upload-global-card', checkAdmin, upload.single('file'), (req, r
     });
 });
 
+// 管理员页面路由
 app.get('/admin', checkAdmin, (req, res) => {
     const users = loadUsers();
     const cards = getCardsList(req.session.username);
@@ -522,6 +559,7 @@ app.get('/admin', checkAdmin, (req, res) => {
     res.render('admin', { users, publicCards, userCards });
 });
 
+// 启动服务器
 app.listen(port, () => {
     console.log(`服务器运行在 http://localhost:${port}`);
 });
