@@ -1,0 +1,606 @@
+/* Material 3 样式 */
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
+    background-color: #FFF9E6; /* 淡黄色护眼背景色 */
+    color: #202124; /* Material Design 深色文本 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh; /* 确保body至少占满整个视口高度 */
+}
+
+h1 {
+    font-size: 36px;
+    font-weight: 500;
+    color: #1F1F1F;
+    margin-top: 40px;
+    margin-bottom: 40px;
+}
+
+.card-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+    width: 80%;
+    justify-items: center;
+}
+
+/* Material Design 3 卡片 */
+.md-card {
+    background-color: #FFFFFF;
+    border-radius: 12px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+    width: 100%;
+    max-width: 300px;
+    text-align: center;
+    padding: 20px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.md-card:hover {
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.2);
+    transform: translateY(-5px);
+}
+
+/* 链接样式 */
+.md-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    margin-bottom: 15px;
+}
+
+/* 卡片标题 */
+.md-card-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1F1F1F;
+    margin-bottom: 12px;
+}
+
+/* 卡片信息 */
+.md-card-info {
+    font-size: 16px;
+    font-weight: 400;
+    color: #616161;
+    background-color: #E0E0E0;
+    padding: 5px 10px;
+    border-radius: 15px;
+}
+
+/* 卡片按钮容器 */
+.card-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+}
+
+/* 记忆按钮样式 */
+.memory-btn {
+    background-color: #0099cc;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    font-size: 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    flex: 1;
+    margin: 0 5px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.memory-btn:hover {
+    background-color: #007ea7;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+.memory-btn:active {
+    background-color: #005f7f;
+    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* quiz.ejs 页面样式 */
+
+#progress-container {
+    margin-bottom: 20px;
+    width: 80%;
+}
+
+#progress-bar {
+    background-color: #4caf50;
+    height: 20px;
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+#progress-text {
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: #616161;
+}
+
+#question-container {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+#question-text {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #1F1F1F;
+}
+
+/* 选项容器样式 */
+#options-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px; /* 选项之间的间距 */
+    width: 80%;
+    margin: 0 auto;
+}
+
+/* Material 3 风格选项按钮 */
+.option-button {
+    background-color: #FFFFFF;
+    border-radius: 12px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 15px 20px;
+    font-size: 16px;
+    color: #202124;
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    min-width: 200px;
+    max-width: 400px;
+    width: 100%; /* 让选项按钮宽度自适应 */
+    box-sizing: border-box;
+    text-align: center;
+}
+
+/* 悬停效果 */
+.option-button:hover {
+    background-color: #f1f1f1;
+    box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* 回答反馈 */
+#feedback {
+    margin-top: 20px;
+    font-size: 20px;
+}
+
+.center-gif {
+    display: block;
+    margin: 20px auto;
+    max-width: 200px;
+}
+
+/* 返回主页按钮 */
+#home-button {
+    margin-top: 30px;
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#home-button:hover {
+    background-color: #357ABD;
+}
+
+/* 下一题按钮 */
+#next-button {
+    margin-top: 20px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#next-button:hover {
+    background-color: #45a049;
+}
+
+/* 登录页面风格 */
+
+.login-container {
+    background-color: #FFFFFF;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    width: 90%; /* 使用百分比宽度以适应不同屏幕 */
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.logo-container {
+    margin-bottom: 20px;
+}
+
+.logo {
+    width: 60px;
+}
+
+.login-title {
+    font-size: 24px;
+    font-weight: 500;
+    margin-bottom: 20px;
+}
+
+.form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+}
+
+.login-input {
+    padding: 15px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 30px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+.login-button {
+    background-color: #0099cc;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 30px;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.3s ease;
+}
+
+.login-button:hover {
+    background-color: #007ea7;
+}
+
+.form-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    color: #555;
+}
+
+.remember-label {
+    margin-left: 5px;
+}
+
+.register-link {
+    font-size: 14px;
+    color: #0099cc;
+    text-decoration: none;
+}
+
+.register-link:hover {
+    text-decoration: underline;
+}
+
+/* 上传按钮样式 */
+.upload-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #0099cc;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.upload-btn:hover {
+    background-color: #007ea7;
+}
+
+/* 学习排行榜按钮样式 */
+.leaderboard-btn {
+    position: fixed;
+    top: 20px;
+    right: 150px;
+    background-color: #0099cc;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.leaderboard-btn:hover {
+    background-color: #007ea7;
+}
+
+/* 模态框通用样式 */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+/* 上传对话框样式 */
+#upload-modal .modal-content {
+    left: 0;
+}
+
+/* 学习排行榜对话框样式 */
+#leaderboard-modal .modal-content {
+    left: -1cm;
+}
+
+/* 关闭按钮样式 */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* 排行榜表格样式 */
+#leaderboard {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+#leaderboard th, #leaderboard td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+#leaderboard th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+#leaderboard tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+#leaderboard tr:hover {
+    background-color: #f5f5f5;
+}
+
+/* 个人信息 */
+.user-info {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    cursor: pointer;
+    font-size: 16px;
+    color: #202124;
+}
+
+#user-dropdown {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+    position: absolute;
+    top: 30px;
+    left: 0;
+    display: none;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+#logout-btn {
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#logout-btn:hover {
+    background-color: #e60000;
+}
+
+/* Admin Page Styles */
+body {
+    font-family: 'Roboto', sans-serif;
+    line-height: 1.6;
+    color: #333;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f5f5f5;
+    position: relative;  /* 添加这行 */
+}
+
+h1, h2 {
+    color: #1976D2;
+    margin-bottom: 20px;
+}
+
+h1 {
+    font-size: 2.5em;
+    border-bottom: 2px solid #1976D2;
+    padding-bottom: 10px;
+    margin-top: 60px;  /* 增加顶部边距，为返回按钮腾出空间 */
+}
+
+h2 {
+    font-size: 1.8em;
+    margin-top: 30px;
+}
+
+button {
+    background-color: #1976D2;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #1565C0;
+}
+
+/* 新增：返回主页按钮样式 */
+#home-button {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background-color: #4CAF50;
+    padding: 10px 20px;
+    font-size: 1em;
+}
+
+#home-button:hover {
+    background-color: #45a049;
+}
+
+#inviteCodeDisplay {
+    margin-top: 10px;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #4CAF50;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    background-color: white;
+    margin-bottom: 10px;
+    padding: 15px;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+li button {
+    margin-left: 10px;
+}
+
+li button:nth-child(2) {
+    background-color: #F44336;
+}
+
+li button:nth-child(2):hover {
+    background-color: #D32F2F;
+}
+
+#upload-form {
+    background-color: white;
+    padding: 20px;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    margin-top: 20px;
+}
+
+#upload-form label {
+    display: block;
+    margin-bottom: 10px;
+}
+
+#upload-form input[type="file"] {
+    margin-bottom: 15px;
+}
+
+#upload-form button {
+    background-color: #4CAF50;
+}
+
+#upload-form button:hover {
+    background-color: #45a049;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    #home-button {
+        position: static;
+        display: block;
+        margin-bottom: 20px;
+        width: 100%;
+    }
+
+    h1 {
+        margin-top: 20px;  /* 减少在小屏幕上的顶部边距 */
+    }
+
+    li {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    li button {
+        margin-left: 0;
+        margin-top: 10px;
+    }
+}

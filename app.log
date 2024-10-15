@@ -1,0 +1,46 @@
+[33m警告: 这是一次性的管理员设置令牌。请妥善保管并在使用后立即禁用相关路由。[0m
+[36m设置令牌: 4kj8rnnr7gabe57ggoxbks[0m
+当前的设置令牌是: 4kj8rnnr7gabe57ggoxbks
+服务器运行在 http://localhost:3123
+[33m警告: 请检查上面的输出以获取管理员设置令牌。[0m
+Executing (default): SELECT 1+1 AS result
+Executing (default): SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME = 'CardSets' AND TABLE_SCHEMA = 'flashcards'
+MariaDB connected
+Executing (default): SHOW FULL COLUMNS FROM `CardSets`;
+Executing (default): SELECT CONSTRAINT_NAME as constraint_name,CONSTRAINT_NAME as constraintName,CONSTRAINT_SCHEMA as constraintSchema,CONSTRAINT_SCHEMA as constraintCatalog,TABLE_NAME as tableName,TABLE_SCHEMA as tableSchema,TABLE_SCHEMA as tableCatalog,COLUMN_NAME as columnName,REFERENCED_TABLE_SCHEMA as referencedTableSchema,REFERENCED_TABLE_SCHEMA as referencedTableCatalog,REFERENCED_TABLE_NAME as referencedTableName,REFERENCED_COLUMN_NAME as referencedColumnName FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE where TABLE_NAME = 'CardSets' AND CONSTRAINT_NAME!='PRIMARY' AND CONSTRAINT_SCHEMA='flashcards' AND REFERENCED_TABLE_NAME IS NOT NULL;
+Executing (default): ALTER TABLE `CardSets` CHANGE `name` `name` VARCHAR(255) NOT NULL UNIQUE;
+Executing (default): ALTER TABLE `CardSets` CHANGE `createdAt` `createdAt` DATETIME NOT NULL;
+Executing (default): ALTER TABLE `CardSets` CHANGE `updatedAt` `updatedAt` DATETIME NOT NULL;
+Executing (default): SHOW INDEX FROM `CardSets`
+Executing (default): SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME = 'Cards' AND TABLE_SCHEMA = 'flashcards'
+Executing (default): SHOW FULL COLUMNS FROM `Cards`;
+Executing (default): SELECT CONSTRAINT_NAME as constraint_name,CONSTRAINT_NAME as constraintName,CONSTRAINT_SCHEMA as constraintSchema,CONSTRAINT_SCHEMA as constraintCatalog,TABLE_NAME as tableName,TABLE_SCHEMA as tableSchema,TABLE_SCHEMA as tableCatalog,COLUMN_NAME as columnName,REFERENCED_TABLE_SCHEMA as referencedTableSchema,REFERENCED_TABLE_SCHEMA as referencedTableCatalog,REFERENCED_TABLE_NAME as referencedTableName,REFERENCED_COLUMN_NAME as referencedColumnName FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE where TABLE_NAME = 'Cards' AND CONSTRAINT_NAME!='PRIMARY' AND CONSTRAINT_SCHEMA='flashcards' AND REFERENCED_TABLE_NAME IS NOT NULL;
+Executing (default): ALTER TABLE `Cards` CHANGE `word` `word` VARCHAR(255) NOT NULL;
+Executing (default): ALTER TABLE `Cards` CHANGE `definition` `definition` TEXT NOT NULL;
+Executing (default): ALTER TABLE `Cards` CHANGE `createdAt` `createdAt` DATETIME NOT NULL;
+Executing (default): ALTER TABLE `Cards` CHANGE `updatedAt` `updatedAt` DATETIME NOT NULL;
+Executing (default): SELECT CONSTRAINT_CATALOG AS constraintCatalog, CONSTRAINT_NAME AS constraintName, CONSTRAINT_SCHEMA AS constraintSchema, CONSTRAINT_TYPE AS constraintType, TABLE_NAME AS tableName, TABLE_SCHEMA AS tableSchema from INFORMATION_SCHEMA.TABLE_CONSTRAINTS WHERE table_name='Cards' AND constraint_name = 'Cards_ibfk_1' AND TABLE_SCHEMA = 'flashcards';
+Executing (default): ALTER TABLE `Cards` DROP FOREIGN KEY `Cards_ibfk_1`;
+Executing (default): ALTER TABLE `Cards` ADD FOREIGN KEY (`CardSetId`) REFERENCES `CardSets` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+Executing (default): SHOW INDEX FROM `Cards`
+Executing (default): SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME = 'Users' AND TABLE_SCHEMA = 'flashcards'
+Executing (default): SHOW FULL COLUMNS FROM `Users`;
+Executing (default): SELECT CONSTRAINT_NAME as constraint_name,CONSTRAINT_NAME as constraintName,CONSTRAINT_SCHEMA as constraintSchema,CONSTRAINT_SCHEMA as constraintCatalog,TABLE_NAME as tableName,TABLE_SCHEMA as tableSchema,TABLE_SCHEMA as tableCatalog,COLUMN_NAME as columnName,REFERENCED_TABLE_SCHEMA as referencedTableSchema,REFERENCED_TABLE_SCHEMA as referencedTableCatalog,REFERENCED_TABLE_NAME as referencedTableName,REFERENCED_COLUMN_NAME as referencedColumnName FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE where TABLE_NAME = 'Users' AND CONSTRAINT_NAME!='PRIMARY' AND CONSTRAINT_SCHEMA='flashcards' AND REFERENCED_TABLE_NAME IS NOT NULL;
+Executing (default): ALTER TABLE `Users` CHANGE `username` `username` VARCHAR(255) NOT NULL UNIQUE;
+Executing (default): ALTER TABLE `Users` CHANGE `password` `password` VARCHAR(255) NOT NULL;
+Executing (default): ALTER TABLE `Users` CHANGE `isAdmin` `isAdmin` TINYINT(1) DEFAULT false;
+Executing (default): ALTER TABLE `Users` CHANGE `createdAt` `createdAt` DATETIME NOT NULL;
+Executing (default): ALTER TABLE `Users` CHANGE `updatedAt` `updatedAt` DATETIME NOT NULL;
+Executing (default): SHOW INDEX FROM `Users`
+Executing (default): SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME = 'InviteCodes' AND TABLE_SCHEMA = 'flashcards'
+Executing (default): SHOW FULL COLUMNS FROM `InviteCodes`;
+Executing (default): SELECT CONSTRAINT_NAME as constraint_name,CONSTRAINT_NAME as constraintName,CONSTRAINT_SCHEMA as constraintSchema,CONSTRAINT_SCHEMA as constraintCatalog,TABLE_NAME as tableName,TABLE_SCHEMA as tableSchema,TABLE_SCHEMA as tableCatalog,COLUMN_NAME as columnName,REFERENCED_TABLE_SCHEMA as referencedTableSchema,REFERENCED_TABLE_SCHEMA as referencedTableCatalog,REFERENCED_TABLE_NAME as referencedTableName,REFERENCED_COLUMN_NAME as referencedColumnName FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE where TABLE_NAME = 'InviteCodes' AND CONSTRAINT_NAME!='PRIMARY' AND CONSTRAINT_SCHEMA='flashcards' AND REFERENCED_TABLE_NAME IS NOT NULL;
+Executing (default): ALTER TABLE `InviteCodes` CHANGE `code` `code` VARCHAR(255) NOT NULL UNIQUE;
+Executing (default): ALTER TABLE `InviteCodes` CHANGE `isUsed` `isUsed` TINYINT(1) DEFAULT false;
+Executing (default): ALTER TABLE `InviteCodes` CHANGE `createdAt` `createdAt` DATETIME NOT NULL;
+Executing (default): ALTER TABLE `InviteCodes` CHANGE `updatedAt` `updatedAt` DATETIME NOT NULL;
+Executing (default): SELECT CONSTRAINT_CATALOG AS constraintCatalog, CONSTRAINT_NAME AS constraintName, CONSTRAINT_SCHEMA AS constraintSchema, CONSTRAINT_TYPE AS constraintType, TABLE_NAME AS tableName, TABLE_SCHEMA AS tableSchema from INFORMATION_SCHEMA.TABLE_CONSTRAINTS WHERE table_name='InviteCodes' AND constraint_name = 'InviteCodes_ibfk_1' AND TABLE_SCHEMA = 'flashcards';
+Executing (default): ALTER TABLE `InviteCodes` DROP FOREIGN KEY `InviteCodes_ibfk_1`;
+Executing (default): ALTER TABLE `InviteCodes` ADD FOREIGN KEY (`createdBy`) REFERENCES `Users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+Executing (default): SHOW INDEX FROM `InviteCodes`
+Database & tables created!

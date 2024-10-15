@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= cardName %> 选择题</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="quiz-container">
+        <div class="quiz-header">
+            <h1><%= cardName %> 选择题</h1>
+            <div id="progress-container">
+                <div id="progress-bar"></div>
+            </div>
+            <span id="progress-text"></span>
+        </div>
+
+        <div id="question-container">
+            <h2 id="question-text"></h2>
+            <div id="options-container"></div>
+            <p id="feedback" style="display: none;"></p>
+            <img id="result-gif" src="" alt="结果动图" style="display: none;"/>
+            <p id="correct-answer" style="display: none;"></p>
+        </div>
+
+        <div class="quiz-footer">
+        <button id="home-button" onclick="window.location.href='/'">返回主页</button>
+            
+            <button id="next-button" style="display: none;">下一题</button>
+        </div>
+    </div>
+
+    <script>
+        let currentIndex = 0;
+        let totalQuestions = <%= total %>;
+
+function loadQuestion() {
+    const isRandom = new URLSearchParams(window.location.search).get('random') === 'true';
+    fetch(`/api/card/<%= cardName %>/question/${currentIndex}?random=${isRandom}`)
+        .then(response => response.json())
+        .then(data => {
+            const isWordToDefinition = Math.random() > 0.5;
+            const questionText = document.getElementById('question-text');
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = ''; // 清空旧的选项
+
+            if (isWordToDefinition) {
+                questionText.textContent = data.word; // 显示单词
+                data.options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.textContent = option;
+                    button.onclick = () => checkAnswer(option, data.correctAnswer);
+                    button.classList.add('option-button');
+                    optionsContainer.appendChild(button);
+                });
+            } else {
+                questionText.textContent = data.correctAnswer; // 显示定义
+                data.wordOptions.forEach(option => {
+                    const button = document.createElement('button');
+                    button.textContent = option;
+                    button.onclick = () => checkAnswer(option, data.word);
+                    button.classList.add('option-button');
+                    optionsContainer.appendChild(button);
+                });
+            }
+
+            updateProgressBar(data.index, data.total);
+        })
+        .catch(error => {
+            console.log('Error:', error);
+        });
+}
+
+
+        function checkAnswer(selected, correct) {
+            const feedback = document.getElementById('feedback');
+            const resultGif = document.getElementById('result-gif');
+            const correctAnswer = document.getElementById('correct-answer');
+            
+            if (selected === correct) {
+                feedback.textContent = '答案正确';
+                feedback.style.color = 'green';
+                resultGif.src = '/images/correct.gif'; // 设置答对的动图路径
+                correctAnswer.style.display = 'none'; // 隐藏正确答案提示
+            } else {
+                feedback.textContent = '别学了，我害怕';
+                feedback.style.color = 'red';
+                resultGif.src = '/images/wrong.gif'; // 设置答错的动图路径
+                correctAnswer.textContent = `正确答案是：${correct}`; // 显示正确答案
+                correctAnswer.style.display = 'block';
+            }
+            
+            feedback.style.display = 'block';
+            resultGif.style.display = 'block'; // 显示动图
+            document.getElementById('next-button').style.display = 'inline';
+        }
+
+        function updateProgressBar(index, total) {
+            const progressBar = document.getElementById('progress-bar');
+            const progress = (index / total) * 100;
+            progressBar.style.width = progress + '%';
+            document.getElementById('progress-text').textContent = `${index}/${total}`;
+        }
+
+        document.getElementById('next-button').addEventListener('click', () => {
+            currentIndex++;
+            if (currentIndex < totalQuestions) {
+                loadQuestion();
+                // 隐藏反馈、动图和正确答案
+                document.getElementById('feedback').style.display = 'none';
+                document.getElementById('result-gif').style.display = 'none';
+                document.getElementById('correct-answer').style.display = 'none';
+                document.getElementById('next-button').style.display = 'none';
+            } else {
+                alert('恭喜你，完成了所有题目！');
+            }
+        });
+
+        loadQuestion();
+    </script>
+</body>
+</html>

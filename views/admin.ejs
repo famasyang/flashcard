@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理员管理页面</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <button id="home-button" onclick="location.href='/'">返回主页</button>
+    <h1>管理员管理页面</h1>
+    <button onclick="generateInviteCode()">生成邀请码</button>
+    <div id="inviteCodeDisplay"></div>
+
+    <h2>用户管理</h2>
+    <ul>
+        <% users.forEach(user => { %>
+            <li>
+                用户名: <%= user.username %>
+                <button onclick="freezeUser('<%= user.username %>')">冻结</button>
+                <button onclick="deleteUser('<%= user.username %>')">删除</button>
+            </li>
+        <% }) %>
+    </ul>
+
+    <h2>公共学习卡片</h2>
+    <ul>
+        <% publicCards.forEach(card => { %>
+            <li>
+                学习卡: <%= card.name %> (词汇数量: <%= card.wordCount %>)
+                <button onclick="deleteCard('<%= card.name %>')">删除</button>
+            </li>
+        <% }) %>
+    </ul>
+
+    <h2>我的学习卡片</h2>
+    <ul>
+        <% userCards.forEach(card => { %>
+            <li>
+                学习卡: <%= card.name %> (词汇数量: <%= card.wordCount %>)
+                <button onclick="deleteCard('<%= card.name %>')">删除</button>
+            </li>
+        <% }) %>
+    </ul>
+
+    <h2>上传全局学习卡</h2>
+    <form id="upload-form" enctype="multipart/form-data" method="POST" action="/admin/upload-global-card">
+        <label for="file">选择学习卡</label>
+        <input type="file" name="file" accept=".txt">
+        <button type="submit">上传</button>
+    </form>
+
+    <script>
+        function generateInviteCode() {
+            fetch('/admin/generate-invite-code', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('inviteCodeDisplay').innerText = `邀请码: ${data.inviteCode}`;
+                })
+                .catch(err => console.error(err));
+        }
+
+        function freezeUser(username) {
+            fetch('/admin/freeze-user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username })
+            })
+            .then(response => response.json())
+            .then(data => alert(data.message))
+            .catch(err => console.error(err));
+        }
+
+        function deleteUser(username) {
+            fetch('/admin/delete-user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username })
+            })
+            .then(response => response.json())
+            .then(data => alert(data.message))
+            .catch(err => console.error(err));
+        }
+
+        // 删除学习卡的函数
+        function deleteCard(cardName) {
+            if (confirm(`确定要删除学习卡 ${cardName} 吗？`)) {
+                fetch('/admin/delete-card', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ cardName })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    if (data.success) {
+                        location.reload(); // 删除成功后刷新页面
+                    }
+                })
+                .catch(err => console.error('删除过程中发生错误:', err));
+            }
+        }
+    </script>
+</body>
+</html>

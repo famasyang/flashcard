@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= cardName %> 学习卡</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <h1><%= cardName %> 学习卡内容</h1>
+    <div class="card-content">
+        <% cardContent.forEach(function(item) { %>
+            <div class="item">
+                <h2><%= item.word %></h2>
+                <p><%= item.definition %></p>
+            </div>
+        <% }) %>
+    </div>
+    <a href="/">返回学习卡列表</a>
+</body>
+</html>

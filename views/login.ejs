@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="login-container">
+        <!-- LOGO 图标 -->
+        <div class="logo-container">
+            <img src="/images/logo.jpg" alt="Logo" class="logo"> <!-- 替换为你的 LOGO 地址 -->
+        </div>
+        <h1 class="login-title">登录</h1>
+        <div class="form-container">
+            <!-- 登录表单 -->
+            <form id="login-form">
+                <div class="form-group">
+                    <input type="text" class="login-input" id="login-username" placeholder="请输入用户名" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" class="login-input" id="login-password" placeholder="请输入密码" required>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="login-button">登录</button>
+                </div>
+                <div class="form-options">
+                   
+                    <a href="#" id="show-register" class="register-link">注册</a>
+                </div>
+            </form>
+
+            <!-- 注册表单，默认隐藏 -->
+            <form id="register-form" style="display: none;">
+                <h2 class="login-title">注册</h2>
+                <div class="form-group">
+                    <input type="text" class="login-input" id="register-username" placeholder="用户名" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" class="login-input" id="register-password" placeholder="密码" required>
+                </div>
+                <div class="form-group">
+                    <input type="text" class="login-input" id="invite-code" placeholder="邀请码" required>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="login-button">注册</button>
+                    <a href="#" id="show-login" class="register-link">已有账户？登录</a>
+                </div>
+            </form>
+        </div>
+
+        <div id="message"></div>
+    </div>
+
+    <script>
+        // 显示注册表单
+        document.getElementById('show-register').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('register-form').style.display = 'block';
+        });
+
+        // 显示登录表单
+        document.getElementById('show-login').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('register-form').style.display = 'none';
+            document.getElementById('login-form').style.display = 'block';
+        });
+
+        // 登录表单提交
+        document.getElementById('login-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+            const response = await fetch('/api/login', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ username, password })
+            });
+            const result = await response.json();
+
+            if (result.message === '登录成功！') {
+                window.location.href = '/';
+            } else {
+                document.getElementById('message').innerText = result.message;
+            }
+        };
+
+        // 注册表单提交
+        document.getElementById('register-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('register-username').value;
+            const password = document.getElementById('register-password').value;
+            const inviteCode = document.getElementById('invite-code').value;
+            const response = await fetch('/api/register', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ username, password, inviteCode })
+            });
+            const result = await response.json();
+
+            document.getElementById('message').innerText = result.message;
+        };
+    </script>
+</body>
+</html>
