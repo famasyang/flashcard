@@ -1,4 +1,4 @@
-// 重构后的代码：引入必要模块
+// 引入必要的模块
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
@@ -10,16 +10,13 @@ const { v4: uuidv4 } = require('uuid');
 const app = express();
 const port = 3123;
 
-// 引入 CORS 模块，用于前后端分离后处理跨域问题
-const cors = require('cors');
-
 // 定义文件路径
 const usersFilePath = path.join(__dirname, 'user', 'users.txt');
 const cardsDirectory = path.join(__dirname, 'cards');
 const learningRecordsPath = path.join(__dirname, 'learningRecords.json');
 
-// 设置中间件
-app.use(cors()); // 重构：增加 CORS 中间件
+// 设置视图引擎和中间件
+app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
@@ -167,16 +164,7 @@ function checkAuthentication(req, res, next) {
     if (req.session.loggedIn && req.session.username) {
         next();
     } else {
-        res.status(401).json({ message: '用户未登录' }); // 重构：将重定向改为返回 JSON 响应
-    }
-}
-
-// 检查管理员权限
-function checkAdmin(req, res, next) {
-    if (req.session.loggedIn && req.session.username === 'admin') {
-        next();
-    } else {
-        res.status(403).json({ message: '没有权限访问此页面' }); // 重构：将错误返回改为 JSON 响应
+        res.redirect('/login');
     }
 }
 
@@ -213,17 +201,17 @@ app.post('/api/register', (req, res) => {
     const users = loadUsers();
 
     if (users.find(user => user.username === username)) {
-        return res.status(400).json({ message: '用户名已存在！' });
+        return res.json({ message: '用户名已存在！' });
     }
 
     const invitingUser = users.find(u => u.inviteCode === inviteCode);
 
     if (!invitingUser) {
-        return res.status(400).json({ message: '邀请码无效！' });
+        return res.json({ message: '邀请码无效！' });
     }
 
     if (invitingUser.role !== 'admin' && invitingUser.isUsed) {
-        return res.status(400).json({ message: '邀请码已被使用！' });
+        return res.json({ message: '邀请码已被使用！' });
     }
 
     const hashedPassword = bcrypt.hashSync(password, 10);
@@ -260,12 +248,12 @@ app.post('/api/login', (req, res) => {
         req.session.username = username;
         return res.json({ message: '登录成功！' });
     } else {
-        return res.status(401).json({ message: '用户名或密码错误！' });
+        return res.json({ message: '用户名或密码错误！' });
     }
 });
 
 // 文件上传接口
-app.post('/upload', checkAuthentication, upload.single('file'), (req, res) => { // 重构：增加 checkAuthentication 中间件
+app.post('/upload', upload.single('file'), (req, res) => {
     console.log('Received upload request:', req.file, req.body);
 
     let fileName;
@@ -310,8 +298,49 @@ app.post('/upload', checkAuthentication, upload.single('file'), (req, res) => { 
     res.json({ success: true, message: '上传成功！' });
 });
 
-// 获取学习卡内容接口
-app.get('/api/card/:name', checkAuthentication, (req, res) => { // 重构：将原本的页面渲染接口改为返回 JSON 数据
+// 主页面路由
+app.get('/', checkAuthentication, (req, res) => {
+    const { publicCards, userCards } = getCardsList(req.session.username);
+    const users = loadUsers();
+    const currentUser = users.find(user => user.username === req.session.username);
+    const learningRecords = loadLearningRecords();
+
+    res.render('index', { 
+        publicCards, 
+        userCards, 
+        isLoggedIn: req.session.loggedIn, 
+        username: req.session.username, 
+        inviteCode: currentUser.inviteCode,
+        learningRecords,
+        role: currentUser.role
+    });
+});
+
+// 登录页面路由
+app.get('/login', (req, res) => {
+    if (req.session.loggedIn) {
+        return res.redirect('/');
+    }
+    res.render('login');
+});
+
+// 获取学习卡的内容页面
+app.get('/card/:name', checkAuthentication, (req, res) => {
+    const cardName = decodeURIComponent(req.params.name);
+    const cardContent = getCardContent(cardName, req.session.username);
+
+    if (cardContent) {
+        const isRandom = req.query.random === 'true';
+        const contentToShow = isRandom ? shuffleArray([...cardContent]) : cardContent;
+        
+        res.render('quiz', { cardName, cardContent: contentToShow, total: cardContent.length });
+    } else {
+        res.status(404).send('卡片未找到');
+    }
+});
+
+// 获取学习卡的API接口
+app.get('/api/card/:name', checkAuthentication, (req, res) => {
     const cardName = req.params.name;
     let cardContent = getCardContent(cardName, req.session.username);
     if (cardContent) {
@@ -322,19 +351,82 @@ app.get('/api/card/:name', checkAuthentication, (req, res) => { // 重构：将�
     }
 });
 
+// 获取学习卡的特定问题接口
+app.get('/api/card/:name/question/:index', checkAuthentication, (req, res) => {
+    const cardName = req.params.name;
+    const index = parseInt(req.params.index, 10);
+    const isRandom = req.query.random === 'true';
+    let cardContent = getCardContent(cardName, req.session.username);
+
+    if (!cardContent) {
+        return res.status(404).json({ message: '卡片未找到' });
+    }
+
+    if (isRandom) {
+        cardContent = shuffleArray(cardContent);
+    }
+
+    if (index >= cardContent.length) {
+        return res.status(404).json({ message: '没有更多题目了' });
+    }
+
+    const question = cardContent[index];
+    const correctAnswer = question.definition;
+    const definitionOptions = [...getRandomOptions(question, cardContent, 'definition'), correctAnswer].sort(() => 0.5 - Math.random());
+    const wordOptions = [...getRandomOptions(question, cardContent, 'word'), question.word].sort(() => 0.5 - Math.random());
+
+    const username = req.session.username;
+    const today = new Date().toISOString().split('T')[0];
+
+    let learningRecords = {};
+    if (fs.existsSync(learningRecordsPath)) {
+        const recordsData = fs.readFileSync(learningRecordsPath);
+        learningRecords = JSON.parse(recordsData);
+    }
+
+    if (!learningRecords[username]) {
+        learningRecords[username] = {};
+    }
+
+    if (!learningRecords[username][today]) {
+        learningRecords[username][today] = {
+            totalWords: 0,
+            learnedWords: []
+        };
+    }
+
+    if (!learningRecords[username][today].learnedWords.includes(question.word)) {
+        learningRecords[username][today].learnedWords.push(question.word);
+        learningRecords[username][today].totalWords += 1;
+    }
+
+    fs.writeFileSync(learningRecordsPath, JSON.stringify(learningRecords, null, 2));
+
+    res.json({
+        word: question.word,
+        correctAnswer: correctAnswer,
+        options: definitionOptions,
+        wordOptions: wordOptions,
+        total: cardContent.length,
+        index: index + 1
+    });
+});
+
 // 注销接口
-app.get('/api/logout', (req, res) => { // 重构：改为 API，返回 JSON 消息
+app.get('/logout', (req, res) => {
     req.session.destroy((err) => {
         if (err) {
-            return res.status(500).json({ message: '退出时发生错误' });
+            return res.status(500).send('退出时发生错误');
         }
-        res.json({ message: '注销成功' });
+        res.redirect('/login');
     });
 });
 
 // 获取排行榜接口
 app.get('/api/leaderboard', (req, res) => {
     const today = new Date().toISOString().split('T')[0];
+    const learningRecordsPath = path.join(__dirname, 'learningRecords.json');
+
     let leaderboard = [];
 
     if (fs.existsSync(learningRecordsPath)) {
@@ -354,6 +446,15 @@ app.get('/api/leaderboard', (req, res) => {
 
     res.json(leaderboard);
 });
+
+// 检查管理员权限
+function checkAdmin(req, res, next) {
+    if (req.session.loggedIn && req.session.username === 'admin') {
+        next();
+    } else {
+        res.status(403).send('没有权限访问此页面');
+    }
+}
 
 // 管理员生成邀请码接口
 app.post('/admin/generate-invite-code', checkAdmin, (req, res) => {
