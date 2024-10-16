@@ -549,7 +549,7 @@ app.post('/admin/upload-global-card', checkAdmin, upload.single('file'), (req, r
     });
 });
 
-// 管理员页面路由
+// 管理员页面的路由
 app.get('/admin', checkAdmin, (req, res) => {
     const users = loadUsers();
     const cards = getCardsList(req.session.username);
